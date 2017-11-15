@@ -1,0 +1,25 @@
+<div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header">
+
+  <!-- Header section containing logo and menu -->
+  <header class="header mdl-layout__header mdl-color-text--white mdl-color--orange-600">
+    <div class="mdl-layout__header-row titlebar">
+      <h3 class="logo"><a id="header--home" class="mdl-color-text--white">Blog Demo with Firebase</a></h3>
+    </div>
+  </header>
+
+  <main class="mdl-layout__content mdl-color--grey-100">
+    <!-- Show a list of posts -->
+    <section class="mdl-grid content" id="posts-list">
+      <div class="posts-container mdl-cell mdl-cell--12-col mdl-grid"><ul></ul>
+      </div>
+    </section>
+
+   <!-- Show a post -->
+    <section class="mdl-grid content start-hidden" id="post-full">
+      <div><a id="post-view-all">View All</a></div>
+      <div class="post-container mdl-cell mdl-cell--12-col mdl-grid" id="post-container">
+        <div></div>
+      </div>
+    </section>
+  </main>
+</div>
