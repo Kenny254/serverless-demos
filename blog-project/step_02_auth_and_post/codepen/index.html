@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" >
+
 <head>
   <meta charset="UTF-8">
-  <title>Firebase Blog example, part 1.c create new posts</title>
+  <title>A Serverless Blog</title>
+  <link href="https://fonts.googleapis.com/css?family=Barlow+Semi+Condensed|PT+Serif:400,400i,700" rel="stylesheet">
 
 
-  <link rel='stylesheet prefetch' href='https://code.getmdl.io/1.3.0/material.orange-blue.min.css'>
-<link rel='stylesheet prefetch' href='https://fonts.googleapis.com/icon?family=Material+Icons'>
 
       <link rel="stylesheet" href="css/style.css">
 
@@ -14,81 +14,70 @@
 </head>
 
 <body>
-  <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header">
 
-  <!-- Header section containing logo and menu -->
-  <header class="header mdl-layout__header mdl-color-text--white mdl-color--orange-600">
-    <div class="mdl-layout__header-row titlebar">
-      <h3 class="logo"><a id="header--home" class="mdl-color-text--white">Blog Demo with Firebase</a></h3>
-      <button id="sign-in-button" class="mdl-button--raised mdl-button mdl-js-button mdl-js-ripple-effect" style="margin: 0 20px; right: 0; position: absolute;"><i class="material-icons">account_circle</i> Sign In</button>
-      <button id="new-post-button" class="mdl-button--raised mdl-button mdl-js-button mdl-js-ripple-effect" style="margin: 0 20px; right: 0; position: absolute; display: none;"><i class="material-icons">edit</i> New Post</button>
-    </div>
-  </header>
+  <header class="site-header">
+  <div class="site-title">
+    A Serverless Blog
+  </div>
+  <div class="site-subtitle">
+    All the code that powers this blog is right here.
+  </div>
+  <a id="sign-in-button" class="button sign-in-button">
+    <svg width="24" height="24" viewBox="0 0 24 24">
+      <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"></path>
+    </svg> Sign In
+  </a>
+  <a id="new-post-button" class="button sign-in-button" style="display:none">
+    <svg width="24" height="24" viewBox="0 0 24 24">
+  <path d="M20.71,4.04C21.1,3.65 21.1,3 20.71,2.63L18.37,0.29C18,-0.1 17.35,-0.1 16.96,0.29L15,2.25L18.75,6M17.75,7L14,3.25L4,13.25V17H7.75L17.75,7Z"></path>
+</svg> New Post
+  </a>
+</header>
 
-  <main class="mdl-layout__content mdl-color--grey-100">
+<main class="site-wrap">
 
-    <!-- Show the new post form -->
-    <section class="mdl-grid content" id="new-post-form" style="display:none">
-      <div class="mdl-cell mdl-cell--12-col mdl-grid">
+  <section id="new-post" class="article-form" style="display: none;">
+    <h2>New Post</h2>
+    <form id="message-form" action="#">
+      <h4><label for="new-post-title">Title</label></h4>
+      <input type="text" id="new-post-title">
+      <br />
+      <br />
+      <h4><label for="new-post-message">Message</label></h6>
+       <textarea rows="3" id="new-post-content"></textarea>
+       <br />
+       <br />
+       <button type="submit">Add post</button>
+     </form>
+   </section>
 
-          <!-- Card containing the inputs to add a new messages -->
-          <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--8-col-tablet
-                  mdl-cell--6-col-desktop">
-            <div class="mdl-card__title mdl-color--light-blue-600 mdl-color-text--white">
-              <h2 class="mdl-card__title-text">New Post</h2>
-            </div>
-            <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-              <form id="message-form" action="#">
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                  <input class="mdl-textfield__input" type="text" id="new-post-title">
-                  <label class="mdl-textfield__label" for="new-post-title">Post title...</label>
-                </div>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                  <textarea class="mdl-textfield__input" rows="3" id="new-post-content"></textarea>
-                  <label class="mdl-textfield__label" for="new-post-message">Post content...</label>
-                </div>
-                <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
-                  Add post
-                </button>
-              </form>
-            </div>
-        </div>
-      </div>
-    </section>
+  <div id="articles-list">
+    <div class="articles-container" />
+  </div>
+
+  <article id="article-whole" class="article-whole start-hidden" >
+    <div></div>
+  </article>
+
+</main>
 
 
-    <!-- Show a list of posts -->
-    <section class="mdl-grid content" id="posts-list">
-      <div class="posts-container mdl-cell mdl-cell--12-col mdl-grid"><ul></ul>
-      </div>
-    </section>
-
-   <!-- Show a post -->
-    <section class="mdl-grid content start-hidden" id="post-full">
-      <div><a id="post-view-all">View All</a></div>
-      <div class="post-container mdl-cell mdl-cell--12-col mdl-grid" id="post-container">
-        <div></div>
-      </div>
-    </section>
-  </main>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/4.7.0/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.8.0/firebase.js"></script>
 <script>
   // Initialize Firebase
   var config = {
-    apiKey: "AIzaSyB5sUdkaXDMa8zBa2z_R61qz9FIQBPyzVY",
-    authDomain: "annie-131.firebaseapp.com",
-    databaseURL: "https://annie-131.firebaseio.com",
-    projectId: "annie-131",
-    storageBucket: "annie-131.appspot.com",
-    messagingSenderId: "139743291029"
+    apiKey: "AIzaSyDEpThYG_vYML09Q5HEY0RtkqzqGtq1XZM",
+    authDomain: "duncan-131.firebaseapp.com",
+    databaseURL: "https://duncan-131.firebaseio.com",
+    projectId: "duncan-131",
+    storageBucket: "duncan-131.appspot.com",
+    messagingSenderId: "631406093601"
   };
   firebase.initializeApp(config);
 </script>
-  <script src='https://code.getmdl.io/1.3.0/material.min.js'></script>
 
-    <script  src="js/index.js"></script>
+<script  src="js/index.js"></script>
 
 </body>
+
 </html>

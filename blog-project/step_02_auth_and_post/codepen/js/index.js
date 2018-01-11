@@ -1,22 +1,18 @@
-var blog_api_url = 'https://us-central1-annie-131.cloudfunctions.net/posts';
-var codepen_url = '//' + location.host + location.pathname;  // this is the frame when editing, and the page when done
-var posts_list = document.getElementById('posts-list');
-var post_full = document.getElementById('post-full');
-var posts_container = posts_list.querySelector('.posts-container');
+var blog_api_url = 'https://us-central1-duncan-131.cloudfunctions.net/posts';
+var posts_list = document.getElementById('articles-list');
+var post_full = document.getElementById('article-whole');
+var posts_container = posts_list.querySelector('.articles-container');
 
 // track authenticated user to avoid triggering on refresh
 var currentUID;
 
-//
-// various vanilla functions
-//
 var loadJsonFromFirebase = function(url, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.addEventListener("load", function () {
-    callback(JSON.parse(this.response));
-  });
-  xhr.open("GET", url);
-  xhr.send();
+    var xhr = new XMLHttpRequest();
+    xhr.addEventListener("load", function () {
+        callback(JSON.parse(this.response));
+    });
+    xhr.open("GET", url);
+    xhr.send();
 };
 
 var getQueryParam = function(param) {
@@ -30,13 +26,15 @@ var getQueryParam = function(param) {
   return paramList[param];
 }
 
+
 // hide the individual post and show the list of posts
 const showListClick = (e) => {
   // hide the single post
   post_full.classList.add('start-hidden');
   // show the full list
-  posts_list.classList.remove('start-hidden');
+  posts_container.classList.remove('start-hidden');
 }
+
 
 // handle selecting the links in the list
 const showPostClick = (e) => {
@@ -46,27 +44,26 @@ const showPostClick = (e) => {
     // load the post from ajax call
     loadJsonFromFirebase(blog_api_url + '/' + post_id, function(data) {
       let div = document.createElement('div');
-      div.classList = 'mdl-cell mdl-cell--12-col mdl-cell--6-col-tablet mdl-cell--4-col-desktop';
-      // TODO: put into a theming function
-      div.innerHTML = '<h4>' + data.title + '</h4>' +
-        '<div>' + data.content + '</div>' +
-        '<div>' + data.author  + '</div>' +
-        '<div>' + data.created + '</div>';
+      let ts = new Date(data.created);
+      div.innerHTML = `<article class="article-block">
+            <h2>${data.title}</h2>
+            <time>${ts.toDateString()}</time>
+            <div class="excerpt">
+              <p>${data.content}</p>
+            </div>
+          </article>`;
+      post_full.replaceChild(div, post_full.firstChild);
 
-      var post = document.getElementById('post-container');
-      post.replaceChild(div, post.firstChild);
-
-      // TODO: consider putting these into a toggle function, since we do the opposite in showListClick
       // hide the full list
-      posts_list.classList.add('start-hidden');
+      posts_container.classList.add('start-hidden');
       // show the single post
       post_full.classList.remove('start-hidden');
     });
   }
 };
 
-// changes made on sign in/out auth changes
-var onLogInOutChange = function(user) {
+// toggle buttons on sign in/out auth changes
+const onLogInOutChange = function(user) {
 
   // Ignore token refresh events
   if (user && currentUID === user.uid) {
@@ -76,7 +73,6 @@ var onLogInOutChange = function(user) {
   // If logged in, show the new post button
   if (user) {
     currentUID = user.uid;
-    // TODO: consider moving these into a toggle function
     document.getElementById('sign-in-button').style.display = 'none';
     document.getElementById('new-post-button').style.display = 'block';
   } else {
@@ -86,44 +82,40 @@ var onLogInOutChange = function(user) {
   }
 }
 
-//
-// the page-specific code
-//
-document.getElementById('post-view-all').addEventListener('click', showListClick);
+//document.getElementById('post-view-all').addEventListener('click', showListClick);
 posts_list.addEventListener('click', showPostClick);
 
-let post_id = getQueryParam('postid');
-
-loadJsonFromFirebase(blog_api_url + (post_id ? '/' + post_id : ''), function(data) {
-  // TODO: extract to theme function and handle initial single post load
-  let div = document.createElement('div');
+loadJsonFromFirebase(blog_api_url, function(data) {
+  let list = document.createElement('div');
   Object.keys(data).forEach(function(key) {
-    // TODO: assume later than IE11, using template literals
-    div.innerHTML += `<p>
-      <h4><a data-post="${key}">${data[key].title}</a></h4>
-      <div>${data[key].content.substr(0, 150)}...</div>
-      <div>${data[key].author}</div>
-      <div>${data[key].created}</div>
-    </p>`;
+    let ts = new Date(data[key].created);
+    list.innerHTML += `<article class="article-block">
+      <h2>${data[key].title}</h2>
+      <time>${ts.toDateString()}</time>
+      <div class="excerpt">
+        <p>${data[key].content.substr(0, 150)}...</p>
+      </div>
+      <a data-post="${key}">Read Post</a>
+    </article>`;
   });
-  posts_container.insertBefore(div, posts_container.firstChild);
+  posts_container.insertBefore(list, posts_container.firstChild);
 });
-
 
 // Bindings on load.
 document.addEventListener('DOMContentLoaded', function() {
-  // Bind Sign in button.
+
   document.getElementById('sign-in-button').addEventListener('click', function() {
     var provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithPopup(provider);
   });
 
-  document.getElementById('new-post-button').addEventListener('click', function() {
-    document.getElementById('new-post-form').style.display = '';
-  });
-
   // Listen for auth state changes
   firebase.auth().onAuthStateChanged(onLogInOutChange);
+
+  // show the new post form
+  document.getElementById('new-post-button').addEventListener('click', function() {
+    document.getElementById('new-post').style.display = '';
+  });
 
   // Saves message on form submit.
   let messageForm = document.getElementById('message-form');
@@ -139,20 +131,21 @@ document.addEventListener('DOMContentLoaded', function() {
       firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function (idToken) {
         var xhr = new XMLHttpRequest();
         xhr.addEventListener("load", function () {
-          // on success, display the post at the top and hide the form
+          // on success, display the post at the top of the list & hide the form
           postTitle.value = '';
           postContent.value = '';
-          document.getElementById('new-post-form').style.display = 'none';
+          document.getElementById('new-post').style.display = 'none';
 
           let postDetails = JSON.parse(this.response);
-          console.log(postDetails);
           let div = document.createElement('div');
-          div.innerHTML += `<p>
-            <h4><a data-post="${postDetails.id}">${postDetails.title}</a></h4>
-            <div>${postDetails.content.substr(0, 150)}...</div>
-            <div>${postDetails.author}</div>
-            <div>${postDetails.created}</div>
-            </p>`;
+          let ts = new Date(postDetails.created);
+          div.innerHTML += `<article class="article-block">
+            <h2>${postDetails.title}</h2>
+            <time>${ts.toDateString()}</time>
+            <div class="excerpt">
+              <p>${postDetails.content}</p>
+            </div>
+          </article>`;
           posts_container.insertBefore(div, posts_container.firstChild);
         });
         xhr.open("POST", blog_api_url);
@@ -165,4 +158,5 @@ document.addEventListener('DOMContentLoaded', function() {
       // TODO: display box around the missing content field
     }
   }
-}, false);
+
+});

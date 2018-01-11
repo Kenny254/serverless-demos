@@ -1,17 +1,16 @@
-<div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header">
+<header class="site-header">
+  <div class="site-title">
+    A Serverless Blog
+  </div>
+  <div class="site-subtitle">
+    All the code that powers this blog is right here.
+  </div>
+</header>
 
-  <!-- Header section containing logo and menu -->
-  <header class="header mdl-layout__header mdl-color-text--white mdl-color--orange-600">
-    <div class="mdl-layout__header-row titlebar">
-      <h3 class="logo">Blog Demo with Firebase</h3>
-    </div>
-  </header>
+<main class="site-wrap">
 
-  <main class="mdl-layout__content mdl-color--grey-100">
-    <!-- Show a list of posts -->
-    <section class="mdl-grid content" id="posts-list">
-      <div class="posts-container mdl-cell mdl-cell--12-col mdl-grid">
-      </div>
-    </section>
-  </main>
-</div>
+  <div id="articles-list">
+    <div class="articles-container" />
+  </div>
+
+</main>

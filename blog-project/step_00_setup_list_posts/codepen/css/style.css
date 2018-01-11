@@ -26,7 +26,6 @@
   padding: 2rem;
 }
 
-.article-form,
 .article-block {
   max-width: 650px;
   margin: 0 auto 2rem;
@@ -82,7 +81,7 @@ a {
   font-weight: bold;
   border-bottom: 1px solid;
   text-decoration: none;
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem 0.5rem;  
 }
 a svg {
   fill: currentcolor;
@@ -91,10 +90,4 @@ a svg {
 a:hover,
 a:focus {
   background: rgba(0, 0, 0, 0.33);
-}
-.start-hidden {
-  display: none;
-}
-input, textarea {
-  width: 100%;
 }
